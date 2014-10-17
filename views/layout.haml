@@ -1,0 +1,16 @@
+!!!
+%html
+    %body
+        %h2 My Short List 
+        %h6 (URLs + label)
+        =yield        
+        %form(action="/" method="POST")
+            Shorten this:
+            %label(for="url")
+            %input(type="text" name="url" id="myurl" autofocus size=50 accesskey="s")
+            %input(type="submit" value="Make it")
+            %br
+            to &#47;
+            %label(for="label")
+            %input(type="text" name="label" id="mylabel" autofocus size=15)
+            (opcional)

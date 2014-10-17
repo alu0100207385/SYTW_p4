@@ -1,0 +1,10 @@
+%ol
+  - if (@list.length == 0)
+    %p EMPTY LIST
+  - else
+    - @list.each do |url|
+      %li 
+        #{url.url}
+        %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
+/         #{url.label}
+/         %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank"} (#{url.label})
