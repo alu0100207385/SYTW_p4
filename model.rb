@@ -3,6 +3,6 @@ class ShortenedUrl
 
   property :id, Serial
   property :url, Text
-#   property :label, Text
+  property :label, Text
 end
 
