@@ -1,9 +1,16 @@
-source 'https://rubygems.org'
+source "http://rubygems.org"
 
-#gem 'alphadecimal'
-gem 'data_mapper'
-gem 'dm-sqlite-adapter'
-gem 'sqlite3'
-gem 'sinatra-contrib'
+gem 'sinatra'
+gem 'omniauth'
+gem 'omniauth-google-oauth2'
+gem 'pry'
+gem 'erubis'
 gem 'haml'
+gem 'data_mapper'
 
+
+group :development do
+  gem 'sinatra-contrib'
+  gem 'sqlite3'
+  gem 'dm-sqlite-adapter'
+end

@@ -8,13 +8,13 @@ task :rackup do
   sh "rackup"
 end
 
-desc "deploy  heroku app"
-task :deploy  do
-  sh "git push heroku master"
-end
-
-desc "Abre la app en Heroku"
+desc "Open app in Heroku"
 task :app  do
   sh "heroku open"
+end
+
+desc "Open repository"
+task :repo do
+  sh "https://github.com/alu0100207385/SYTW_p4"
 end
 
