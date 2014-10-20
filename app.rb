@@ -1,12 +1,19 @@
 #!/usr/bin/env ruby
-require 'rubygems'
+require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/reloader' if development?
+require 'omniauth-oauth2'
+require 'omniauth-google-oauth2'
+require 'pry'
 require 'haml'
+require 'rubygems'
 require 'uri'
-require 'pp'
-#require 'socket'
 require 'data_mapper'
+
+require 'erubis'
+require 'pp'
+
+# set :erb, :escape_html => true
 
 DataMapper.setup( :default, ENV['DATABASE_URL'] || 
                             "sqlite3://#{Dir.pwd}/my_shortened_urls.db" )
@@ -16,21 +23,53 @@ DataMapper::Model.raise_on_save_failure = true
 require_relative 'model'
 
 DataMapper.finalize
-
-#DataMapper.auto_migrate!
 DataMapper.auto_upgrade!
 
 Base = 36
 
 
+
+use OmniAuth::Builder do
+  config = YAML.load_file 'config/config.yml'
+  provider :google_oauth2, config['identifier'], config['secret']
+end
+
+enable :sessions
+set :session_secret, '*&(^#234a)'
+
 get '/' do
+    haml :signin
+#   erb :index
+#   %Q|<a href='/auth/google_oauth2'>Sign in with Google</a>|
+end
+
+get '/auth/:name/callback' do
   puts "inside get '/': #{params}"
   @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
   # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
   haml :index
+=begin
+  @auth = request.env['omniauth.auth']
+  puts "params = #{params}"
+  puts "@auth.class = #{@auth.class}"
+  puts "@auth info = #{@auth['info']}"
+  puts "@auth info class = #{@auth['info'].class}"
+  puts "@auth info name = #{@auth['info'].name}"
+  puts "@auth info email = #{@auth['info'].email}"
+  #puts "-------------@auth----------------------------------"
+  #PP.pp @auth
+  #puts "*************@auth.methods*****************"
+  #PP.pp @auth.methods.sort
+#   erb :index
+  redirect "/myapp"
+#   nombre = @auth['info'].name
+#   nombre.gsub!(/\s+/, "") #quitamos los espacios en blanco
+#   redirect "/myapp/#{nombre}"
+=end
 end
 
-post '/' do
+
+post '/auth/:name/callback' do
   puts "inside post '/': #{params}"
   uri = URI::parse(params[:url])
   if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
@@ -44,23 +83,17 @@ post '/' do
   else
     logger.info "Error! <#{params[:url]}> is not a valid URL"
   end
-  redirect '/'
+#   haml :index
+  redirect 'index'
 end
 
-get '/:shortened' do
+get '/auth/:name/callback/:shortened' do
   puts "inside get '/:shortened': #{params}"
   if (params[:label] == '')
-   short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
-  else
    short_url = ShortenedUrl.first(:label => params[:shortened])
+  else
+   short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
   end
-  # url_label = ShortenedUrl.first(:
-  # puts "mostrando consulta:  #{short_url.url}"
-  # HTTP status codes that start with 3 (such as 301, 302) tell the
-  # browser to go look for that resource in another location. This is
-  # used in the case where a web page has moved to another location or
-  # is no longer at the original location. The two most commonly used
-  # redirection status codes are 301 Move Permanently and 302 Found.
   redirect short_url.url, 301
 end
 
