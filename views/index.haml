@@ -9,7 +9,7 @@
         #{url.url}
         - if (url.label == '')
           %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
-        -else
+        - else
           %a{:href=>"/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
 %form(action="/auth/:name/callback" method="POST")
 Shorten this:
@@ -21,4 +21,3 @@ to &#47;
 %label(for="label")
 %input(type="text" name="label" id="mylabel" autofocus size=15)
 (opcional)
-
