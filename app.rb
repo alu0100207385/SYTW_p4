@@ -44,10 +44,12 @@ get '/' do
 end
 
 get '/auth/:name/callback' do
+#   %Q|<h2>Bienvenido</h2>|
   puts "inside get '/': #{params}"
-  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+#   @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
   # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
-  haml :index
+#   haml :index
+  redirect "/index"
 =begin
   @auth = request.env['omniauth.auth']
   puts "params = #{params}"
@@ -66,6 +68,13 @@ get '/auth/:name/callback' do
 #   nombre.gsub!(/\s+/, "") #quitamos los espacios en blanco
 #   redirect "/myapp/#{nombre}"
 =end
+end
+
+get '/index' do
+#   puts "inside get '/': #{params}"
+  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+  # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
+  haml :index
 end
 
 
@@ -87,14 +96,20 @@ post '/auth/:name/callback' do
   redirect 'index'
 end
 
-get '/auth/:name/callback/:shortened' do
-  puts "inside get '/:shortened': #{params}"
+get '/index/:shortened' do
+  puts "inside get '/index/:shortened': #{params}"
   if (params[:label] == '')
    short_url = ShortenedUrl.first(:label => params[:shortened])
   else
    short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
   end
-  redirect short_url.url, 301
+  redirect "/index/#{short_url.url}", 301
+end
+
+get '/auth/failure' do
+  flash[:notice] =
+    %Q{<h3>Ha habido un error. </h3>}
+  redirect '/'
 end
 
 error do haml :index end
