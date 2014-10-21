@@ -9,7 +9,6 @@ require 'haml'
 require 'rubygems'
 require 'uri'
 require 'data_mapper'
-
 require 'erubis'
 require 'pp'
 
@@ -28,7 +27,6 @@ DataMapper.auto_upgrade!
 Base = 36
 
 
-
 use OmniAuth::Builder do
   config = YAML.load_file 'config/config.yml'
   provider :google_oauth2, config['identifier'], config['secret']
@@ -38,78 +36,92 @@ enable :sessions
 set :session_secret, '*&(^#234a)'
 
 get '/' do
+#     @user = nil
     haml :signin
-#   erb :index
-#   %Q|<a href='/auth/google_oauth2'>Sign in with Google</a>|
 end
-
-get '/auth/:name/callback' do
-#   %Q|<h2>Bienvenido</h2>|
-  puts "inside get '/': #{params}"
-#   @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
-  # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
-#   haml :index
-  redirect "/index"
 =begin
-  @auth = request.env['omniauth.auth']
-  puts "params = #{params}"
-  puts "@auth.class = #{@auth.class}"
-  puts "@auth info = #{@auth['info']}"
-  puts "@auth info class = #{@auth['info'].class}"
-  puts "@auth info name = #{@auth['info'].name}"
-  puts "@auth info email = #{@auth['info'].email}"
-  #puts "-------------@auth----------------------------------"
-  #PP.pp @auth
-  #puts "*************@auth.methods*****************"
-  #PP.pp @auth.methods.sort
-#   erb :index
-  redirect "/myapp"
-#   nombre = @auth['info'].name
-#   nombre.gsub!(/\s+/, "") #quitamos los espacios en blanco
-#   redirect "/myapp/#{nombre}"
-=end
-end
-
 get '/index' do
-#   puts "inside get '/': #{params}"
+  puts "inside get '/': #{params}"
   @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
   # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
   haml :index
 end
+=end
 
 
-post '/auth/:name/callback' do
-  puts "inside post '/': #{params}"
-  uri = URI::parse(params[:url])
-  if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
-    begin
-      @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
-    rescue Exception => e
-      puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
-      pp @short_url
-      puts e.message
+get '/auth/:name/callback' do
+    config = YAML.load_file 'config/config.yml'
+    case params[:name]
+    when 'google_oauth2'
+      session[:auth] = @auth = request.env['omniauth.auth']
+      session[:name] = @auth['info'].name
+      redirect "user/index"
+    else
+      redirect "/auth/failure"
+    end
+end
+
+get '/user/:webname' do
+  if (session[:name] != nil)
+    case(params[:webname])
+    when "index"
+      @user = session[:name]
+      @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+      haml :index
     end
   else
-    logger.info "Error! <#{params[:url]}> is not a valid URL"
+    redirect '/'
   end
-#   haml :index
-  redirect 'index'
 end
 
-get '/index/:shortened' do
-  puts "inside get '/index/:shortened': #{params}"
-  if (params[:label] == '')
-   short_url = ShortenedUrl.first(:label => params[:shortened])
-  else
-   short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
+post '/user/:webname' do
+#   puts "inside post '/': #{params}"
+  if (session[:name] != nil)
+    uri = URI::parse(params[:url])
+    if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
+      begin
+	@short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
+      rescue Exception => e
+	puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
+	pp @short_url
+	puts e.message
+      end
+    else
+      logger.info "Error! <#{params[:url]}> is not a valid URL"
+    end
+    redirect '/user/index'
   end
-  redirect "/index/#{short_url.url}", 301
-end
-
-get '/auth/failure' do
-  flash[:notice] =
-    %Q{<h3>Ha habido un error. </h3>}
   redirect '/'
 end
 
-error do haml :index end
+# get '/user/index/logout' do
+get '/logout' do
+  puts "SALIENDO...."
+  if session[:auth]
+    session[:auth] = nil;
+  end
+  session.clear
+  redirect '/'
+end
+
+get '/user/index/:shortened' do
+  puts "inside get '/index/:shortened': #{params}"
+  if (params[:label] == '')
+   short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
+  else
+   short_url = ShortenedUrl.first(:label => params[:shortened])
+   
+  end
+  redirect short_url.url, 301
+end
+
+
+get '/auth/failure' do
+  flash[:notice] =
+    %Q{<h3>Se ha producido un error</h3>}
+  redirect '/'
+end
+
+error do haml :signin end
+
+#logout (sale pero no cierra sesion, revisar)
