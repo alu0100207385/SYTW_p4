@@ -5,4 +5,3 @@ class ShortenedUrl
   property :url, Text
   property :label, Text
 end
-

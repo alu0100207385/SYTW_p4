@@ -1,4 +1,5 @@
-%h2 My Short List 
+%h1 #{@user}
+%h2 My Short List
 %h6 (URLs + label)
 %ol
   - if (@list.length == 0)
@@ -11,14 +12,19 @@
           %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
         -else
           %a{:href=>"/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
-%form(action="/auth/:name/callback" method="POST")
 Shorten this:
-%label(for="url")
-%input(type="text" name="url" id="myurl" autofocus size=50 accesskey="s")
-%input(type="submit" value="Make it")
+%form{:name=> "input" , :action=>"/user/index",:method=>"POST"}
+  %label{:for=>"url"}
+  %input{:type=>"text",:name=>"url",:id=>"myurl",:autofocus => "",:size=>"50"}
+  %input{:type=>"submit",:value=>"Make it"}
+  %br
+  to &#47;
+  %label{:for=>"label"}
+  %input{:type=>"text",:name=>"label",:id=>"mylabel",:autofocus=>"",:size=>"15"}
+  (opcional)
 %br
-to &#47;
-%label(for="label")
-%input(type="text" name="label" id="mylabel" autofocus size=15)
-(opcional)
+%a{:href=>"/logout",:title=>"logout"} Logout
+/ %form{:name=>"input", :action=>"/user/index/logout",:method=>"get"}
+/   %input{:type=>"button",:value=>"Logout"}
+
 
