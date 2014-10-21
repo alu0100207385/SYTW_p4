@@ -1,23 +1,26 @@
-%h2 My Short List 
-%h6 (URLs + label)
-%ol
-  - if (@list.length == 0)
-    %p EMPTY LIST
-  - else
-    - @list.each do |url|
-      %li 
-        #{url.url}
-        - if (url.label == '')
-          %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
-        - else
-          %a{:href=>"/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
-%form(action="/auth/:name/callback" method="POST")
-Shorten this:
-%label(for="url")
-%input(type="text" name="url" id="myurl" autofocus size=50 accesskey="s")
-%input(type="submit" value="Make it")
-%br
-to &#47;
-%label(for="label")
-%input(type="text" name="label" id="mylabel" autofocus size=15)
-(opcional)
+.blurb.bright
+  .row
+    .col-md-6.col-md-offset-3.text-center
+      %h2 My Short List
+      %ol
+      - if (@list.length == 0)
+        %p EMPTY LIST
+      - else
+        - @list.each do |url|
+          %li 
+            #{url.url}
+            - if (url.label == '')
+              %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
+            - else
+              %a{:href=>"/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
+      %br
+      %form(action="/auth/:name/callback" method="POST")
+      Shorten this:
+      %label(for="url")
+      %input(type="text" name="url" id="myurl" autofocus size=50 accesskey="s")
+      %input(type="submit" value="Make it")
+      %br
+      to &#47;
+      %label(for="label")
+      %input(type="text" name="label" id="mylabel" autofocus size=15)
+      (opcional)
