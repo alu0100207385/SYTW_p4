@@ -9,9 +9,9 @@
       %li 
         #{url.url}
         - if (url.label == '')
-          %a{:href=>"/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
+          %a{:href=>"/user/index/#{url.id.to_s(Base)}",:target=>"_blank",:title=>"#{url.url}"} (#{url.id.to_s(Base)})
         -else
-          %a{:href=>"/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
+          %a{:href=>"/user/index/#{url.label}",:target=>"_blank",:title=>"#{url.url}"} (#{url.label})
 Shorten this:
 %form{:name=> "input" , :action=>"/user/index",:method=>"POST"}
   %label{:for=>"url"}
@@ -23,7 +23,7 @@ Shorten this:
   %input{:type=>"text",:name=>"label",:id=>"mylabel",:autofocus=>"",:size=>"15"}
   (opcional)
 %br
-%a{:href=>"/logout",:title=>"logout"} Logout
+%a{:href=>"/user/index/logout",:title=>"logout"} Logout
 / %form{:name=>"input", :action=>"/user/index/logout",:method=>"get"}
 /   %input{:type=>"button",:value=>"Logout"}
 
