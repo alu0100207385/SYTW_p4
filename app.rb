@@ -36,17 +36,8 @@ enable :sessions
 set :session_secret, '*&(^#234a)'
 
 get '/' do
-#     @user = nil
     haml :signin
 end
-=begin
-get '/index' do
-  puts "inside get '/': #{params}"
-  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
-  # in SQL => SELECT * FROM "ShortenedUrl" ORDER BY "id" ASC
-  haml :index
-end
-=end
 
 
 get '/auth/:name/callback' do
@@ -94,24 +85,38 @@ post '/user/:webname' do
   redirect '/'
 end
 
-# get '/user/index/logout' do
-get '/logout' do
+
+get '/user/index/logout' do
   puts "SALIENDO...."
   if session[:auth]
     session[:auth] = nil;
   end
   session.clear
+  redirect 'https://accounts.google.com/Logout'
+end
+=begin
+get 'https://accounts.google.com/ServiceLogin?elo=1' do
+  puts "ACABE......................"
   redirect '/'
 end
+=end
 
 get '/user/index/:shortened' do
-  puts "inside get '/index/:shortened': #{params}"
-  if (params[:label] == '')
-   short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
-  else
-   short_url = ShortenedUrl.first(:label => params[:shortened])
-   
+  puts "inside get '/user/index/:shortened': #{params}"
+  short_url = nil
+  short_url = ShortenedUrl.first(:label => params[:shortened])
+  if short_url == nil
+	 short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
   end
+=begin
+  if (params[:label] == "")
+    puts "ENTRO EN 1"
+    short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
+  else
+    puts "ENTRO EN 2"
+    short_url = ShortenedUrl.first(:label => params[:shortened])
+   end
+=end
   redirect short_url.url, 301
 end
 
@@ -123,5 +128,3 @@ get '/auth/failure' do
 end
 
 error do haml :signin end
-
-#logout (sale pero no cierra sesion, revisar)
