@@ -46,6 +46,7 @@ get '/auth/:name/callback' do
     when 'google_oauth2'
       session[:auth] = @auth = request.env['omniauth.auth']
       session[:name] = @auth['info'].name
+	  session[:image] = @auth['info'].image
       redirect "user/index"
     else
       redirect "/auth/failure"
@@ -57,7 +58,9 @@ get '/user/:webname' do
     case(params[:webname])
     when "index"
       @user = session[:name]
+	  @user_img = session[:image]
       @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+# 	  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
       haml :index
     end
   else
@@ -71,11 +74,12 @@ post '/user/:webname' do
     uri = URI::parse(params[:url])
     if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
       begin
-	@short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
-      rescue Exception => e
-	puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
-	pp @short_url
-	puts e.message
+		 @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
+# 		 @short_url = ShortenedUrl.first_or_create(:usu => @user, :url => params[:url],:label => params[:label])
+		 rescue Exception => e
+		 puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
+		 pp @short_url
+		 puts e.message
       end
     else
       logger.info "Error! <#{params[:url]}> is not a valid URL"
@@ -92,21 +96,24 @@ get '/user/index/logout' do
     session[:auth] = nil;
   end
   session.clear
-  redirect 'https://accounts.google.com/Logout'
-end
-=begin
-get 'https://accounts.google.com/ServiceLogin?elo=1' do
-  puts "ACABE......................"
   redirect '/'
 end
-=end
+
+
+get '/user/index/close_sesion' do
+  session.clear
+  redirect 'https://accounts.google.com/Logout'
+end
+
 
 get '/user/index/:shortened' do
   puts "inside get '/user/index/:shortened': #{params}"
   short_url = nil
   short_url = ShortenedUrl.first(:label => params[:shortened])
+#   short_url = ShortenedUrl.first((:label => params[:shortened]) && (:usu => @usu))
   if short_url == nil
 	 short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
+# 	 short_url = ShortenedUrl.first((:id => params[:shortened].to_i(Base)) && (:usu => @usu))
   end
 =begin
   if (params[:label] == "")
