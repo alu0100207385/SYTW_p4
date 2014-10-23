@@ -47,6 +47,7 @@ get '/auth/:name/callback' do
       session[:auth] = @auth = request.env['omniauth.auth']
       session[:name] = @auth['info'].name
 	  session[:image] = @auth['info'].image
+	  session[:email] = @auth['info'].email
       redirect "user/index"
     else
       redirect "/auth/failure"
@@ -59,8 +60,9 @@ get '/user/:webname' do
     when "index"
       @user = session[:name]
 	  @user_img = session[:image]
-      @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
-# 	  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+	  email = session[:email]
+#       @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+	  @list = ShortenedUrl.all(:order => [:id.asc], :email => email , :email.not => nil, :limit => 20)
       haml :index
     end
   else
@@ -68,14 +70,15 @@ get '/user/:webname' do
   end
 end
 
+
 post '/user/:webname' do
 #   puts "inside post '/': #{params}"
   if (session[:name] != nil)
     uri = URI::parse(params[:url])
     if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
       begin
-		 @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
-# 		 @short_url = ShortenedUrl.first_or_create(:usu => @user, :url => params[:url],:label => params[:label])
+# 		 @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
+		 @short_url = ShortenedUrl.first_or_create(:url => params[:url] , :email => session[:email] , :label => params[:label])
 		 rescue Exception => e
 		 puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
 		 pp @short_url
