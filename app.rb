@@ -14,7 +14,8 @@ require 'pp'
 
 # set :erb, :escape_html => true
 
-DataMapper.setup( :default, ENV['DATABASE_URL'] || "sqlite3://#{Dir.pwd}/my_shortened_urls.db" )
+DataMapper.setup( :default, ENV['DATABASE_URL'] || 
+                            "sqlite3://#{Dir.pwd}/my_shortened_urls.db" )
 DataMapper::Logger.new($stdout, :debug)
 DataMapper::Model.raise_on_save_failure = true 
 
@@ -28,7 +29,6 @@ Base = 36
 
 use OmniAuth::Builder do
   config = YAML.load_file 'config/config.yml'
-#   config = YAML.load_file 'config/config_local.yml'
   provider :google_oauth2, config['identifier'], config['secret']
 end
 
@@ -42,7 +42,6 @@ end
 
 get '/auth/:name/callback' do
     config = YAML.load_file 'config/config.yml'
-# 	config = YAML.load_file 'config/config_local.yml'
     case params[:name]
     when 'google_oauth2'
       session[:auth] = @auth = request.env['omniauth.auth']
