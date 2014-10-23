@@ -2,7 +2,7 @@
 require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/reloader' if development?
-require 'sinatra/flash'
+# require 'sinatra/flash'
 require 'omniauth-oauth2'
 require 'omniauth-google-oauth2'
 require 'pry'
@@ -38,20 +38,6 @@ set :session_secret, '*&(^#234a)'
 
 get '/' do
     haml :signin
-end
-
-
-get '/auth/:name/callback' do
-    config = YAML.load_file 'config/config.yml'
-    case params[:name]
-    when 'google_oauth2'
-      session[:auth] = @auth = request.env['omniauth.auth']
-      session[:name] = @auth['info'].name
-	  session[:image] = @auth['info'].image
-      redirect "user/index"
-    else
-      redirect "/auth/failure"
-    end
 end
 
 
@@ -132,15 +118,6 @@ get '/user/index/:shortened' do
   if short_url == nil
 	 short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
   end
-=begin
-  if (params[:label] == "")
-    puts "ENTRO EN 1"
-    short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
-  else
-    puts "ENTRO EN 2"
-    short_url = ShortenedUrl.first(:label => params[:shortened])
-   end
-=end
   redirect short_url.url, 301
 end
 
