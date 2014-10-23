@@ -1,3 +1,6 @@
+require 'dm-core'
+require 'dm-migrations'
+
 class ShortenedUrl
   include DataMapper::Resource
 
