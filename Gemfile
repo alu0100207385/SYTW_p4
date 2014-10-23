@@ -7,9 +7,9 @@ gem 'pry'
 gem 'erubis'
 gem 'haml'
 gem 'thin'
-gem 'rake'
 gem 'data_mapper'
 gem 'sinatra-contrib'
+gem 'sinatra-flash'
 
 group :development do
   gem 'sqlite3'

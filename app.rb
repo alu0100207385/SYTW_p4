@@ -2,6 +2,7 @@
 require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/reloader' if development?
+require 'sinatra/flash'
 require 'omniauth-oauth2'
 require 'omniauth-google-oauth2'
 require 'pry'
@@ -53,14 +54,31 @@ get '/auth/:name/callback' do
     end
 end
 
+
+get '/auth/:name/callback' do
+    config = YAML.load_file 'config/config.yml'
+    case params[:name]
+    when 'google_oauth2'
+      session[:auth] = @auth = request.env['omniauth.auth']
+      session[:name] = @auth['info'].name
+	  session[:image] = @auth['info'].image
+	  session[:email] = @auth['info'].email
+      redirect "user/index"
+    else
+      redirect "/auth/failure"
+    end
+end
+
+
 get '/user/:webname' do
   if (session[:name] != nil)
     case(params[:webname])
     when "index"
       @user = session[:name]
 	  @user_img = session[:image]
-      @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
-# 	  @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+	  email = session[:email]
+#       @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
+	  @list = ShortenedUrl.all(:order => [:id.asc], :email => email , :limit => 20)
       haml :index
     end
   else
@@ -68,14 +86,15 @@ get '/user/:webname' do
   end
 end
 
+
 post '/user/:webname' do
 #   puts "inside post '/': #{params}"
   if (session[:name] != nil)
     uri = URI::parse(params[:url])
     if uri.is_a? URI::HTTP or uri.is_a? URI::HTTPS then
       begin
-		 @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
-# 		 @short_url = ShortenedUrl.first_or_create(:usu => @user, :url => params[:url],:label => params[:label])
+# 		 @short_url = ShortenedUrl.first_or_create(:url => params[:url],:label => params[:label])
+		 @short_url = ShortenedUrl.first_or_create(:url => params[:url] , :email => session[:email] , :label => params[:label])
 		 rescue Exception => e
 		 puts "EXCEPTION!!!!!!!!!!!!!!!!!!!"
 		 pp @short_url
@@ -110,10 +129,8 @@ get '/user/index/:shortened' do
   puts "inside get '/user/index/:shortened': #{params}"
   short_url = nil
   short_url = ShortenedUrl.first(:label => params[:shortened])
-#   short_url = ShortenedUrl.first((:label => params[:shortened]) && (:usu => @usu))
   if short_url == nil
 	 short_url = ShortenedUrl.first(:id => params[:shortened].to_i(Base))
-# 	 short_url = ShortenedUrl.first((:id => params[:shortened].to_i(Base)) && (:usu => @usu))
   end
 =begin
   if (params[:label] == "")
