@@ -7,6 +7,7 @@ gem 'pry'
 gem 'erubis'
 gem 'haml'
 gem 'data_mapper'
+gem 'rake'
 
 group :development do
   gem 'sinatra-contrib'
