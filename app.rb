@@ -2,7 +2,6 @@
 require 'bundler/setup'
 require 'sinatra'
 require 'sinatra/reloader' if development?
-require 'sinatra/flash'
 require 'omniauth-oauth2'
 require 'omniauth-google-oauth2'
 require 'pry'
