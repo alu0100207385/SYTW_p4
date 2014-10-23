@@ -8,7 +8,6 @@ gem 'erubis'
 gem 'haml'
 gem 'data_mapper'
 
-
 group :development do
   gem 'sinatra-contrib'
   gem 'sqlite3'

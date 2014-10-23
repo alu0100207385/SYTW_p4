@@ -62,7 +62,7 @@ get '/user/:webname' do
 	  @user_img = session[:image]
 	  email = session[:email]
 #       @list = ShortenedUrl.all(:order => [ :id.asc ], :limit => 20)
-	  @list = ShortenedUrl.all(:order => [:id.asc], :email => email , :email.not => nil, :limit => 20)
+	  @list = ShortenedUrl.all(:order => [:id.asc], :email => email , :limit => 20)
       haml :index
     end
   else
