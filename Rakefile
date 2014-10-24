@@ -1,6 +1,5 @@
 desc "run the http server"
 task :default do
-   sh "cp config/config_local.yml config/config.yml"
   sh "ruby app.rb"
 end
 =begin
