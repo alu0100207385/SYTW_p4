@@ -6,6 +6,9 @@
 
 Ejemplo de acortador de URLs que admite elegidas por el usuario.
 
+##HEROKU
+
+http://shorturl1.herokuapp.com/
 
 ##Instalación
 
@@ -26,7 +29,6 @@ Las opciones posibles son:
 2. rake app       # Abrir la App en Heroku 
 
 3. rake repo      # Acceder al repositorio
-```
 
 
 ##Recursos
